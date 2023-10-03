@@ -1,15 +1,15 @@
 const ContactsRepository = require('../repositories/ContactsRepository');
 
 class ContactController {
+  // Listar todos os Registros
   async index(req, res) {
-    // Listar todos os registros
     const contacts = await ContactsRepository.findAll();
 
     res.json(contacts);
   }
 
+  // Listar um registro pelo ID
   async show(req, res) {
-    // Exibir um registro
     const { id } = req.params;
 
     const contact = await ContactsRepository.findById(id);
@@ -21,29 +21,59 @@ class ContactController {
     res.json(contact);
   }
 
+  // Criar um registro
   async store(req, res) {
-    // Criar novo registro
-
     const {
-      name, email, phone, categoryId,
+      name, email, phone, category_id,
     } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
 
     const contactExists = await ContactsRepository.findByEmail(email);
 
     if (contactExists) {
-      return res.status(400).json({ error: 'This emial is already in use!' });
+      return res.status(400).json({ error: 'This email is already in use!' });
     }
 
-    const contact = await ContactsRepository.create({
-      name, email, phone, categoryId,
+    const contact = await ContactsRepository.create(name, email, phone, category_id);
+
+    res.json(contact);
+  }
+
+  // Atualizar um Registro
+  async update(req, res) {
+    const { id } = req.params;
+    const {
+      name, email, phone, category_id,
+    } = req.body;
+
+    const contactExists = await ContactsRepository.findById(id);
+
+    if (!contactExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const contactEmail = await ContactsRepository.findByEmail(email);
+
+    if (contactEmail && contactEmail.id !== id) {
+      return res.status(400).json({ error: 'This email is already in use!' });
+    }
+
+    const contact = await ContactsRepository.update(id, {
+      name, email, phone, category_id,
     });
 
     res.json(contact);
   }
 
+  // Remover um registro
   async delete(req, res) {
-    // Editar um registro
-
     const { id } = req.params;
 
     const contact = await ContactsRepository.findById(id);
