@@ -25,7 +25,8 @@ class ContactsRepository {
     const [row] = await db.query(
       `
    SELECT email FROM contacts
-   WHERE email = $1`,
+   WHERE email = $1
+   `,
       [email],
     );
 
