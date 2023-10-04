@@ -3,7 +3,8 @@ const ContactsRepository = require('../repositories/ContactsRepository');
 class ContactController {
   // Listar todos os Registros
   async index(req, res) {
-    const contacts = await ContactsRepository.findAll();
+    const { orderBy } = req.query;
+    const contacts = await ContactsRepository.findAll(orderBy);
 
     res.json(contacts);
   }
@@ -37,7 +38,9 @@ class ContactController {
       return res.status(400).json({ error: 'This email is already in use!' });
     }
 
-    const contact = await ContactsRepository.create(name, email, phone, category_id);
+    const contact = await ContactsRepository.create({
+      name, email, phone, category_id,
+    });
 
     res.json(contact);
   }
